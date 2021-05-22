@@ -1,5 +1,5 @@
 <?php
-
+use App\Crud;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,5 +12,8 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('welcome')
+    ->with('cruds',Crud::paginate(10));;
+})->name('welcome');
+
+Route::resource('cruds',CrudController::class);

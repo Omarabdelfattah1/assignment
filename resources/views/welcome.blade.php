@@ -8,8 +8,7 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-
-        <!-- Styles -->
+       
         <style>
             html, body {
                 background-color: #fff;
@@ -62,38 +61,73 @@
                 margin-bottom: 30px;
             }
         </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
-
             <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                <div>{{$error}}</div>
+                @endforeach
+            @endif
+            <form action="@isset($crud)
+                            {{route('cruds.update',$crud)}}
+                        @else
+                            {{route('cruds.store')}}
+                        @endisset" method="post">
+                @csrf
+                @isset($crud)
+                @method('put')
+                @endisset
+                <div>
+                    <input  type="text" placeholder="feild1" name="feild1" value="{{old('feild1',isset($crud->feild1))}}">
                 </div>
+                <div>
+                    <input type="text" placeholder="feild2" name="feild2" value="{{old('feild2',isset($crud->feild2))}}">
+                </div>
+                <input type="submit">
+            </form>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://blog.laravel.com">Blog</a>
-                    <a href="https://nova.laravel.com">Nova</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
+            <table style="margin:auto;">
+                <thead>
+                    <th>feild1</th>
+                    <th>feild2</th>
+                    <th>actions</th>
+                </thead>
+                <tbody>
+                    @foreach($cruds as $crud)
+                        <tr>
+                            <td>{{$crud->feild1}}</td>
+                            <td>{{$crud->feild2}}</td>
+                            <td><a href="{{route('cruds.edit',$crud)}}">edit</a></td>
+                            <td><button id="delete" data-id="{{ $crud->id }}" data-token="{{ csrf_token() }}" >delete</button></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
             </div>
-        </div>
+            <script>
+                $("#delete").click(function(){
+                    var id = $(this).data("id");
+                    var token = $(this).data("token");
+                    $.ajax(
+                    {
+                        url: "/cruds/"+id,
+                        type: 'POST',
+                        dataType: "JSON",
+                        data: {
+                            "_method": 'DELETE',
+                            "_token": token,
+                        },
+                        success: function ()
+                        {
+                            location.replace("{{route('welcome')}}");
+                        }
+                    });
+
+                    console.log("error");
+                });
+            </script>
+        
     </body>
 </html>
